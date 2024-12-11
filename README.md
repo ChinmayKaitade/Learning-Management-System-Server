@@ -1,3 +1,20 @@
+# Learning Management System Server
+
+### Dependencies Installed
+
+```bash
+npm install bcryptjs cloudinary cookie-parser cors dotenv express jsonwebtoken mongoose morgan multer nodemailer razorpay
+```
+
+```bash
+npm install -D nodemon
+```
+
+## Basic Express App Setup
+
+`app.js`
+
+```javascript
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -36,3 +53,16 @@ app.use("*", (req, res) => {
 });
 
 export default app;
+```
+
+`server.js`
+
+```javascript
+import app from "./app.js";
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`App is listening on port ${PORT}`);
+});
+```

@@ -8,8 +8,10 @@ config();
 
 const app = express();
 
+// Built-In
 app.use(express.json());
 
+// Third-Party
 app.use(
   cors({
     origin: [process.env.FRONTEND_URL],
@@ -25,6 +27,7 @@ app.get("/", (req, res) => {
   res.send("<h1>Hello World</h1>");
 });
 
+// Server Status Check Route
 app.get("/ping", (req, res) => {
   res.send("<h1>Pong</h1>");
 });
@@ -32,9 +35,13 @@ app.get("/ping", (req, res) => {
 // routes
 app.use("/api/v1/user", userRoutes);
 
+// Default Route for 404 Error
 app.all("*", (req, res) => {
-  res.send(`<h1>404! Page Not Found</h1>`);
+  res.send(`<h1>OOPS!! 404 Page Not Found</h1>`);
   res.status(404);
 });
+
+// Custom error handling middleware
+app.use(errorMiddleware);
 
 export default app;

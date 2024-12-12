@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
+import router from "./routes/user.routes";
 import { config } from "dotenv";
 config();
 
@@ -28,9 +29,10 @@ app.get("/ping", (req, res) => {
   res.send("<h1>Pong</h1>");
 });
 
-// routes of 3 modules
+// routes
+app.use("/api/v1/user", userRoutes);
 
-app.use("*", (req, res) => {
+app.all("*", (req, res) => {
   res.send(`<h1>404! Page Not Found</h1>`);
   res.status(404);
 });

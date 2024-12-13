@@ -49,12 +49,16 @@ const register = async (req, res, next) => {
   // Save the user object
   await user.save();
 
-  user.password = undefined;
-
+  // Generating a JWT token
   const token = await user.generateJWTToken();
 
+  // Setting the password to undefined so it does not get sent in the response
+  user.password = undefined;
+
+  // Setting the token in the cookie with name token along with cookieOptions
   res.cookie("token", token, cookieOptions);
 
+  // If all good send the response to the frontend
   res.status(201).json({
     success: true,
     message: "User Registered Successfully",
@@ -62,8 +66,42 @@ const register = async (req, res, next) => {
   });
 };
 
-const login = (req, res) => {
-  //
+const login = async (req, res) => {
+  try {
+    // Destructuring the necessary data from req object
+    const { email, password } = req.body;
+
+    // Check if the data is there or not, if not throw error message
+    if (!email || !password) {
+      return next(new AppError("All Fields are Required", 400));
+    }
+
+    // Finding the user with the sent email
+    const user = await User.findOne({ email }).select("+password");
+
+    // If no user or sent password do not match then send generic response
+    if (!user || !user.comparePassword(password)) {
+      return next(new AppError("Email or Password does not match", 400));
+    }
+
+    // Generating a JWT token
+    const token = await user.generateJWTToken();
+
+    // Setting the password to undefined so it does not get sent in the response
+    user.password = undefined;
+
+    // Setting the token in the cookie with name token along with cookieOptions
+    res.cookie("token", token, cookieOptions);
+
+    // If all good send the response to the frontend
+    res.status(200).json({
+      success: true,
+      message: "User LoggedIn Successfully",
+      user,
+    });
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
 };
 
 const logout = (req, res) => {

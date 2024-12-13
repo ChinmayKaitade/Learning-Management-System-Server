@@ -1,4 +1,11 @@
-import AppError from "../utils/appError";
+import User from "../models/user.model.js";
+import AppError from "../utils/appError.js";
+
+const cookieOptions = {
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  httpOnly: true,
+  secure: true,
+};
 
 const register = async (req, res, next) => {
   // Destructuring the necessary data from req object
@@ -41,6 +48,18 @@ const register = async (req, res, next) => {
 
   // Save the user object
   await user.save();
+
+  user.password = undefined;
+
+  const token = await user.generateJWTToken();
+
+  res.cookie("token", token, cookieOptions);
+
+  res.status(201).json({
+    success: true,
+    message: "User Registered Successfully",
+    user,
+  });
 };
 
 const login = (req, res) => {

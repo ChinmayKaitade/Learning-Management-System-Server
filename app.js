@@ -1,9 +1,10 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import userRoutes from "./routes/user.routes.js";
 import morgan from "morgan";
-import router from "./routes/user.routes";
 import { config } from "dotenv";
+import errorMiddleware from "./middlewares/error.middleware.js";
 config();
 
 const app = express();

@@ -105,7 +105,18 @@ const login = async (req, res) => {
 };
 
 const logout = (req, res) => {
-  //
+  // Setting the cookie value to null
+  res.cookie("token", null, {
+    secure: true,
+    maxAge: 0,
+    httpOnly: true,
+  });
+
+  // Sending the response
+  res.status(200).json({
+    success: true,
+    message: "User Logged Out Successfully",
+  });
 };
 
 const getProfile = (req, res) => {

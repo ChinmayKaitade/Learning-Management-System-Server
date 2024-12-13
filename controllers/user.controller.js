@@ -119,8 +119,20 @@ const logout = (req, res) => {
   });
 };
 
-const getProfile = (req, res) => {
-  //
+const getProfile = async (req, res) => {
+  try {
+    // Finding the user using the id from modified req object
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+
+    res.status(200).json({
+      success: true,
+      message: "User Details Fetched",
+      user,
+    });
+  } catch (error) {
+    return new AppError("Failed to fetched User Details", 500);
+  }
 };
 
 export { register, login, logout, getProfile };

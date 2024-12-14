@@ -49,11 +49,11 @@ const register = async (req, res, next) => {
   // Save the user object
   await user.save();
 
-  // Generating a JWT token
-  const token = await user.generateJWTToken();
-
   // Setting the password to undefined so it does not get sent in the response
   user.password = undefined;
+
+  // Generating a JWT token
+  const token = await user.generateJWTToken();
 
   // Setting the token in the cookie with name token along with cookieOptions
   res.cookie("token", token, cookieOptions);
@@ -66,7 +66,7 @@ const register = async (req, res, next) => {
   });
 };
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     // Destructuring the necessary data from req object
     const { email, password } = req.body;

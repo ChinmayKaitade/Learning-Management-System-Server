@@ -262,4 +262,53 @@ const resetPassword = async (req, res, next) => {
   });
 };
 
-export { register, login, logout, getProfile, forgotPassword, resetPassword };
+const changePassword = async (req, res, next) => {
+  // Destructuring the necessary data from the req object
+  const { oldPassword, newPassword } = req.body;
+  const { id } = req.user; // because of the middleware isLoggedIn
+
+  // Check if the values are there or not
+  if (!oldPassword || !newPassword) {
+    return next(new AppError("All Fields are Mandatory.", 400));
+  }
+
+  // Finding the user by ID and selecting the password
+  const user = await Users.findById(id).select("+password");
+
+  // If no user then throw an error message
+  if (!user) {
+    return next(new AppError("User does not exists.", 400));
+  }
+
+  // Check if the old password is correct
+  const isPasswordValid = await user.comparePassword(oldPassword);
+
+  // If the old password is not valid then throw an error message
+  if (!isPasswordValid) {
+    return next(new AppError("Invalid Old Password.", 400));
+  }
+
+  // Setting the new password
+  user.password = newPassword;
+
+  // Save the data in DB
+  await user.save();
+
+  // Setting the password undefined so that it won't get sent in the response
+  user.password = undefined;
+
+  res.status(200).json({
+    success: true,
+    message: "Password Changed Successfully.",
+  });
+};
+
+export {
+  register,
+  login,
+  logout,
+  getProfile,
+  forgotPassword,
+  resetPassword,
+  changePassword,
+};

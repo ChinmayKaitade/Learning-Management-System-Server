@@ -3,6 +3,7 @@ import AppError from "../utils/appError.js";
 import cloudinary from "cloudinary";
 import fs from "fs/promises";
 import sendEmail from "../utils/sendEmail.js";
+import crypto from "crypto";
 
 const cookieOptions = {
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
@@ -218,6 +219,47 @@ const forgotPassword = async (req, res, next) => {
   }
 };
 
-const resetPassword = (req, res) => {};
+const resetPassword = async (req, res, next) => {
+  // Extracting resetToken from req.params object
+  const { resetToken } = req.params;
+
+  // Extracting password from req.body object
+  const { password } = req.body;
+
+  // We are again hashing the resetToken using sha256 since we have stored our resetToken in DB using the same algorithm
+  const forgotPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  // Check if password is not there then send response saying password is required
+  const user = await User.findOne({
+    forgotPasswordToken,
+    forgotPasswordExpiry: { $gt: Date.now() }, // $gt will help us check for greater than value, with this we can check if token is valid or expired
+  });
+
+  // If not found or expired send the response
+  if (!user) {
+    return next(
+      new AppError("Token is invalid or expired, Please try again.", 400)
+    );
+  }
+
+  // Update the password if token is valid and not expired
+  user.password = password;
+
+  // making forgotPassword values undefined in the DB
+  user.forgotPasswordToken = undefined;
+  user.forgotPasswordExpiry = undefined;
+
+  // Saving the updated user values
+  user.save();
+
+  // Sending the response when everything goes good
+  res.status(200).json({
+    success: true,
+    message: "Your Password has been Changed Successfully.",
+  });
+};
 
 export { register, login, logout, getProfile, forgotPassword, resetPassword };

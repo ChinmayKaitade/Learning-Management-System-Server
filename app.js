@@ -11,6 +11,7 @@ const app = express();
 
 // Built-In
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // Middleware to parse URL-encoded data from incoming requests
 
 // Third-Party
 app.use(

@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/user.routes.js";
+import courseRoutes from "./routes/course.routes.js";
 import morgan from "morgan";
 import { config } from "dotenv";
 import errorMiddleware from "./middlewares/error.middleware.js";
@@ -36,6 +37,7 @@ app.get("/ping", (req, res) => {
 
 // routes
 app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/courses", courseRoutes);
 
 // Default Route for 404 Error
 app.all("*", (req, res) => {

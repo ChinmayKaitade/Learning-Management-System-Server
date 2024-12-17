@@ -13,3 +13,5 @@ npm install -D nodemon
 ## 01. Introduction ✅
 
 ## 02. User Module ✅
+
+## 03. User Module (Reset, Forgot, Change Password, Update Password) ✅

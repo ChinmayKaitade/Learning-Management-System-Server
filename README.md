@@ -15,3 +15,6 @@ npm install -D nodemon
 ## 02. User Module ✅
 
 ## 03. User Module (Reset, Forgot, Change Password, Update Password) ✅
+
+## 04. Course Module (List Courses, List Lectures) ✅
+

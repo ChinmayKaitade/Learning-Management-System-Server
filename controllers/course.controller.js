@@ -77,8 +77,6 @@ const createCourse = async (req, res, next) => {
         folder: "lms",
       });
 
-      console.log("Result:", JSON.stringify(result));
-
       // If success
       if (result) {
         // Set the public_id and secure_url in array
@@ -134,7 +132,29 @@ const updateCourse = async (req, res, next) => {
 };
 
 const removeCourse = async (req, res, next) => {
-  //
+  try {
+    // Extracting id from the request parameters
+    const { id } = req.params;
+
+    // Finding the course via the course ID
+    const course = await Course.findById(id);
+
+    // If course not find send the message as stated below
+    if (!course) {
+      return next(new AppError("Course with given id does not exist.", 404));
+    }
+
+    // Remove course
+    await Course.findByIdAndDelete(id);
+
+    // Send the message as response
+    res.status(200).json({
+      success: true,
+      message: "Course deleted Successfully.",
+    });
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
 };
 
 export {

@@ -10,7 +10,7 @@ const router = Router();
 // router.get("/:id", getLecturesByCourseId);
 
 router.route("/").get(getAllCourses);
-router.route("/:id").get(getLecturesByCourseId);
 
+router.route("/:id").get(getLecturesByCourseId);
 
 export default router;

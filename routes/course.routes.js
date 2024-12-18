@@ -3,6 +3,7 @@ import {
   getAllCourses,
   getLecturesByCourseId,
 } from "../controllers/course.controller.js";
+import { isLoggedIn } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -11,6 +12,6 @@ const router = Router();
 
 router.route("/").get(getAllCourses);
 
-router.route("/:id").get(getLecturesByCourseId);
+router.route("/:id").get(isLoggedIn, getLecturesByCourseId);
 
 export default router;

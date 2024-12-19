@@ -157,10 +157,79 @@ const removeCourse = async (req, res, next) => {
   }
 };
 
+const addLecturesToCourseById = async (req, res, next) => {
+  try {
+    // Extracting title and description from the request body
+    const { title, description } = req.body;
+
+    // Extracting id from the request parameters
+    const { id } = req.params;
+
+    // If title description does not exists
+    if (!title || !description) {
+      return next(new AppError("Title and Description are Required.", 400));
+    }
+
+    // Finding the course via the course ID
+    const course = await Course.findById(id);
+
+    // If course does not found or does not exists
+    if (!course) {
+      return next(new AppError("Course with given id does not exist.", 404));
+    }
+
+    const lectureData = {
+      title,
+      description,
+      lectures: {},
+    };
+
+    // Run only if user sends a file
+    if (req.file) {
+      try {
+        const result = await cloudinary.v2.uploader.upload(req.file.path, {
+          folder: "lms",
+        });
+
+        // If success
+        if (result) {
+          // Set the public_id and secure_url in array
+          lectureData.lectures.public_id = result.public_id;
+          lectureData.lectures.secure_url = result.secure_url;
+        }
+
+        // After successful upload remove the file from local storage
+        fs.rm(`uploads/${req.file.filename}`);
+      } catch (error) {
+        // Send the error message
+        return next(new AppError(error.message, 500));
+      }
+    }
+
+    // Adding lecturesData in lectures
+    course.lectures.push(lectureData);
+
+    // number of lectures
+    course.numbersOfLectures = course.lectures.length;
+
+    // Save the course object
+    await course.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Course Lecture added Successfully.",
+      course,
+    });
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
+};
+
 export {
   getAllCourses,
   getLecturesByCourseId,
   createCourse,
   updateCourse,
   removeCourse,
+  addLecturesToCourseById,
 };

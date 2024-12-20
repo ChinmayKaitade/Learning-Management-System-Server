@@ -19,12 +19,13 @@ const isLoggedIn = async (req, res, next) => {
   next();
 };
 
+// Middleware to check if user is admin or not
 const authorizedRoles =
   (...roles) =>
   async (req, res, next) => {
-    const currentUserRoles = req.user.role;
+    const currentUserRole = req.user.role;
 
-    if (!roles.includes(currentUserRoles)) {
+    if (!roles.includes(currentUserRole)) {
       return next(
         new Error("You do not permission to excess this route.", 403)
       );
@@ -33,4 +34,17 @@ const authorizedRoles =
     next();
   };
 
-export { isLoggedIn, authorizedRoles };
+// Middleware to check if user has an active subscription or not
+const authorizeSubscribers = async (req, res, next) => {
+  const subscription = req.user.subscription;
+  const currentUserRole = req.user.role;
+
+  // If user is not admin or does not have an active subscription then error else pass
+  if (currentUserRole !== "ADMIN" && subscription.status !== "active") {
+    return next(new AppError("Please Subscribe to access this route.", 403));
+  }
+
+  next();
+};
+
+export { isLoggedIn, authorizedRoles, authorizeSubscribers };

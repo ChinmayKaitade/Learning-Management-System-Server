@@ -150,5 +150,21 @@ export const cancelSubscription = async (req, res, next) => {
 };
 
 export const allPayments = async (req, res, next) => {
-  //
+  try {
+    // Extracting const from request query
+    const { count } = req.query;
+
+    // Find all subscriptions from razorpay
+    const subscriptions = await razorpay.subscriptions.all({
+      count: count || 10,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "All Payments.",
+      subscriptions,
+    });
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
 };

@@ -20,3 +20,4 @@ npm install -D nodemon
 
 ## 05. Course Module (Create, Edit, Delete, Add Lectures) ✅
 
+## 06. Payment Module ✅

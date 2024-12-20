@@ -1,5 +1,7 @@
 import User from "../models/user.model.js";
 import { razorpay } from "../server.js";
+import AppError from "../utils/appError.js";
+import crypto from "crypto";
 
 export const getRazorpayApiKey = async (req, res, next) => {
   res.status(200).json({
@@ -47,11 +49,58 @@ export const buySubscription = async (req, res, next) => {
   });
 };
 
-export const cancelSubscription = async (req, res, next) => {
-  //
+export const verifySubscription = async (req, res, next) => {
+  // Extracting ID from request obj
+  const { id } = req.user;
+
+  // Extracting razorpay_payment_id, razorpay_subscription_id, razorpay_signature from request body
+  const { razorpay_payment_id, razorpay_subscription_id, razorpay_signature } =
+    req.body;
+
+  // Finding the user
+  const user = await User.findById(id);
+
+  if (!user) {
+    return next(new AppError("Unauthorized, Please login.", 400));
+  }
+
+  // Getting the subscription ID from the user object
+  const subscriptionId = user.subscription.id;
+
+  // Generating a signature with SHA256 for verification purposes
+  // Here the subscriptionId should be the one which we saved in the DB
+  // razorpay_payment_id is from the frontend and there should be a '|' character between this and subscriptionId
+  // At the end convert it to Hex value
+  const generatedSignature = crypto
+    .createHmac("sha256", process.env.RAZORPAY_SECRET)
+    .update(`${razorpay_payment_id}|${subscriptionId}`)
+    .digest("hex");
+
+  // Check if generated signature and signature received from the frontend is the same or not
+  if (generatedSignature !== razorpay_signature) {
+    return next(new AppError("Payment not verified, Please try again.", 400));
+  }
+
+  // If they match create payment and store it in the DB
+  await Payment.create({
+    razorpay_payment_id,
+    razorpay_subscription_id,
+    razorpay_signature,
+  });
+
+  // Update the user subscription status to active (This will be created before this)
+  user.subscription.status = "active";
+
+  // Save the user in the DB with any changes
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Payment verified Successfully.",
+  });
 };
 
-export const verifySubscription = async (req, res, next) => {
+export const cancelSubscription = async (req, res, next) => {
   //
 };
 

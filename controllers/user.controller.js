@@ -133,22 +133,26 @@ const login = async (req, res, next) => {
   }
 };
 
-const logout = (req, res) => {
-  // Setting the cookie value to null
-  res.cookie("token", null, {
-    secure: true,
-    maxAge: 0,
-    httpOnly: true,
-  });
+const logout = (req, res, next) => {
+  try {
+    // Setting the cookie value to null
+    res.cookie("token", null, {
+      secure: true,
+      maxAge: 0,
+      httpOnly: true,
+    });
 
-  // Sending the response
-  res.status(200).json({
-    success: true,
-    message: "User Logged Out Successfully.",
-  });
+    // Sending the response
+    res.status(200).json({
+      success: true,
+      message: "User Logged Out Successfully.",
+    });
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
 };
 
-const getProfile = async (req, res) => {
+const getProfile = async (req, res, next) => {
   try {
     // Finding the user using the id from modified req object
     const userId = req.user.id;
@@ -160,7 +164,7 @@ const getProfile = async (req, res) => {
       user,
     });
   } catch (error) {
-    return new AppError("Failed to fetched User Details.", 500);
+    return next(new AppError("Failed to fetched User Details.", 500));
   }
 };
 

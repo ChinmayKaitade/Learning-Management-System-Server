@@ -4,6 +4,7 @@ import cloudinary from "cloudinary";
 import fs from "fs/promises";
 import sendEmail from "../utils/sendEmail.js";
 import crypto from "crypto";
+import asyncHandler from "../middlewares/asyncHandler.middleware.js";
 
 const cookieOptions = {
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
@@ -307,20 +308,18 @@ const changePassword = async (req, res, next) => {
   });
 };
 
-const updateUser = async (req, res, next) => {
+const updateUser = asyncHandler(async (req, res, next) => {
   // Destructuring the necessary data from the req object
   const { fullName } = req.body;
-  const { id } = req.user.id;
+  const { id } = req.params;
 
   const user = await User.findById(id);
 
-  // If no user then throw an error message
   if (!user) {
-    return next(new AppError("User does not exists."));
+    return next(new AppError("Invalid user id or user does not exist"));
   }
 
-  // If fullName exists then update fullName
-  if (req.fullName) {
+  if (fullName) {
     user.fullName = fullName;
   }
 
@@ -349,7 +348,7 @@ const updateUser = async (req, res, next) => {
       }
     } catch (error) {
       return next(
-        new AppError(error || "File not uploaded, Please try again.", 400)
+        new AppError(error || "File not uploaded, please try again", 400)
       );
     }
   }
@@ -359,9 +358,9 @@ const updateUser = async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: "User details updated Successfully.",
+    message: "User details updated successfully",
   });
-};
+});
 
 export {
   register,

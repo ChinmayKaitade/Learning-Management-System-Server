@@ -16,7 +16,7 @@ const router = Router();
 
 router.post("/register", upload.single("avatar"), register);
 router.post("/login", login);
-router.get("/logout", logout);
+router.post("/logout", isLoggedIn, logout);
 router.get("/me", isLoggedIn, getProfile);
 router.post("/reset", forgotPassword);
 router.post("/reset/:resetToken", resetPassword);

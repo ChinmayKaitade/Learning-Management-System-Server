@@ -1,6 +1,9 @@
 import jwt from "jsonwebtoken";
+import AppError from "../utils/appError.js";
+import asyncHandler from "./asyncHandler.middleware.js";
+import User from "../models/user.model.js";
 
-const isLoggedIn = async (req, res, next) => {
+const isLoggedIn = asyncHandler(async (req, res, next) => {
   // extracting token from the cookies
   const { token } = req.cookies;
 
@@ -17,7 +20,7 @@ const isLoggedIn = async (req, res, next) => {
 
   // Do not forget to call the next other wise the flow of execution will not be passed further
   next();
-};
+});
 
 // Middleware to check if user is admin or not
 const authorizedRoles =
@@ -27,7 +30,7 @@ const authorizedRoles =
 
     if (!roles.includes(currentUserRole)) {
       return next(
-        new Error("You do not permission to excess this route.", 403)
+        new AppError("You do not permission to excess this route.", 403)
       );
     }
 
@@ -36,11 +39,13 @@ const authorizedRoles =
 
 // Middleware to check if user has an active subscription or not
 const authorizeSubscribers = async (req, res, next) => {
-  const subscription = req.user.subscription;
-  const currentUserRole = req.user.role;
+  // const subscription = req.user.subscription;
+  // const currentUserRole = req.user.role;
 
   // If user is not admin or does not have an active subscription then error else pass
-  if (currentUserRole !== "ADMIN" && subscription.status !== "active") {
+  const user = await User.findById(req.user.id);
+  console.log(user);
+  if (user.role !== "ADMIN" && user.subscription.status !== "active") {
     return next(new AppError("Please Subscribe to access this route.", 403));
   }
 

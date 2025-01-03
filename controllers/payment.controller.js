@@ -24,7 +24,7 @@ export const buySubscription = asyncHandler(async (req, res, next) => {
 
   // Checking the user role
   if (user.role === "ADMIN") {
-    return next(new AppError("Admin cannot purchase a subscription", 400));
+    return next(new AppError("Admin cannot Purchase a Subscription", 400));
   }
 
   // Creating a subscription using razorpay that we imported from the server
@@ -45,7 +45,7 @@ export const buySubscription = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: "subscribed successfully",
+    message: "Subscribed Successfully",
     subscription_id: subscription.id,
   });
 });
@@ -77,7 +77,7 @@ export const verifySubscription = asyncHandler(async (req, res, next) => {
 
   // Check if generated signature and signature received from the frontend is the same or not
   if (generatedSignature !== razorpay_signature) {
-    return next(new AppError("Payment not verified, please try again.", 400));
+    return next(new AppError("Payment not Verified, Please try again.", 400));
   }
 
   // If they match create payment and store it in the DB
@@ -96,7 +96,7 @@ export const verifySubscription = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: "Payment verified successfully",
+    message: "Payment Verified Successfully",
   });
 });
 
@@ -114,7 +114,7 @@ export const cancelSubscription = asyncHandler(async (req, res, next) => {
   // Checking the user role
   if (user.role === "ADMIN") {
     return next(
-      new AppError("Admin does not need to cannot cancel subscription", 400)
+      new AppError("Admin does not need to cannot cancel Subscription", 400)
     );
   }
 
@@ -172,7 +172,7 @@ export const cancelSubscription = asyncHandler(async (req, res, next) => {
   // Send the response
   res.status(200).json({
     success: true,
-    message: "Subscription canceled successfully",
+    message: "Subscription Canceled Successfully",
   });
 });
 

@@ -5,6 +5,7 @@ import {
   getAllCourses,
   getLecturesByCourseId,
   removeCourse,
+  removeLectureFromCourse,
   updateCourse,
 } from "../controllers/course.controller.js";
 import {
@@ -27,18 +28,18 @@ router
     authorizedRoles("ADMIN"),
     upload.single("thumbnail"),
     createCourse
-  );
+  )
+  .delete(isLoggedIn, authorizedRoles("ADMIN"), removeLectureFromCourse);
 
 router
   .route("/:id")
-  .get(isLoggedIn, authorizeSubscribers, getLecturesByCourseId)
-  .put(isLoggedIn, authorizedRoles("ADMIN"), updateCourse)
-  .delete(isLoggedIn, authorizedRoles("ADMIN"), removeCourse)
+  .get(isLoggedIn, authorizeSubscribers, getLecturesByCourseId) // Added authorizeSubscribers to check if user is admin or subscribed if not then forbid the access to the lectures
   .post(
     isLoggedIn,
     authorizedRoles("ADMIN"),
     upload.single("lecture"),
     addLecturesToCourseById
-  );
+  )
+  .put(isLoggedIn, authorizedRoles("ADMIN"), updateCourse);
 
 export default router;

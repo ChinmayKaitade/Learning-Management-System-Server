@@ -19,31 +19,6 @@ const getAllCourses = async (req, res, next) => {
   }
 };
 
-const getLecturesByCourseId = async (req, res, next) => {
-  try {
-    // fetching course id from req params
-    const { id } = req.params;
-    console.log("Course Id:", id);
-
-    // finding course
-    const course = await Course.findById(id);
-    console.log("Course Details:", course);
-
-    // if course does not exists or course id doesn't exists
-    if (!course) {
-      return next(new AppError("Course Not Found, Invalid Course Id.", 400));
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Course Lectures Fetched Successfully.",
-      lectures: course.lectures,
-    });
-  } catch (error) {
-    return next(new AppError(error.message, 400));
-  }
-};
-
 const createCourse = async (req, res, next) => {
   // fetching title, description, category and createdBy from request body
   const { title, description, category, createdBy } = req.body;
@@ -101,60 +76,28 @@ const createCourse = async (req, res, next) => {
   });
 };
 
-const updateCourse = async (req, res, next) => {
+const getLecturesByCourseId = async (req, res, next) => {
   try {
-    // Extracting the course id from the request params
+    // fetching course id from req params
     const { id } = req.params;
+    console.log("Course Id:", id);
 
-    // Finding the course using the course id
-    const course = await Course.findByIdAndUpdate(
-      id,
-      {
-        $set: req.body,
-      },
-      {
-        runValidators: true,
-      }
-    );
-
-    // If no course found then send the response for the same
-    if (!course) {
-      return next(new AppError("Course does not exists.", 400));
-    }
-
-    // Sending the response after success
-    res.status(200).json({
-      success: true,
-      message: "Course updated Successfully.",
-    });
-  } catch (error) {
-    return next(new AppError(error.message, 500));
-  }
-};
-
-const removeCourse = async (req, res, next) => {
-  try {
-    // Extracting id from the request parameters
-    const { id } = req.params;
-
-    // Finding the course via the course ID
+    // finding course
     const course = await Course.findById(id);
+    console.log("Course Details:", course);
 
-    // If course not find send the message as stated below
+    // if course does not exists or course id doesn't exists
     if (!course) {
-      return next(new AppError("Course with given id does not exist.", 404));
+      return next(new AppError("Course Not Found, Invalid Course Id.", 400));
     }
 
-    // Remove course
-    await Course.findByIdAndDelete(id);
-
-    // Send the message as response
     res.status(200).json({
       success: true,
-      message: "Course deleted Successfully.",
+      message: "Course Lectures Fetched Successfully.",
+      lectures: course.lectures,
     });
   } catch (error) {
-    return next(new AppError(error.message, 500));
+    return next(new AppError(error.message, 400));
   }
 };
 
@@ -214,7 +157,8 @@ const addLecturesToCourseById = asyncHandler(async (req, res, next) => {
     lecture: lectureData,
   });
 
-  course.numberOfLectures = course.lectures.length;
+  // Update the number of lectures
+  course.numbersOfLectures = course.lectures.length;
 
   // Save the course object
   await course.save();
@@ -270,8 +214,8 @@ const removeLectureFromCourse = asyncHandler(async (req, res, next) => {
   // Remove the lecture from the array
   course.lectures.splice(lectureIndex, 1);
 
-  // update the number of lectures based on lectres array length
-  course.numberOfLectures = course.lectures.length;
+  // update the number of lectures based on lectures array length
+  course.numbersOfLectures = course.lectures.length;
 
   // Save the course object
   await course.save();
@@ -283,12 +227,64 @@ const removeLectureFromCourse = asyncHandler(async (req, res, next) => {
   });
 });
 
+const updateCourseById = async (req, res, next) => {
+  try {
+    // Extracting the course id from the request params
+    const { id } = req.params;
+
+    // Finding the course using the course id
+    const course = await Course.findByIdAndUpdate(
+      id,
+      {
+        $set: req.body,
+      },
+      {
+        runValidators: true,
+      }
+    );
+
+    // If no course found then send the response for the same
+    if (!course) {
+      return next(new AppError("Course does not exists.", 400));
+    }
+
+    // Sending the response after success
+    res.status(200).json({
+      success: true,
+      message: "Course updated Successfully.",
+    });
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
+};
+
+export const deleteCourseById = asyncHandler(async (req, res, next) => {
+  // Extracting id from the request parameters
+  const { id } = req.params;
+
+  // Finding the course via the course ID
+  const course = await Course.findById(id);
+
+  // If course not find send the message as stated below
+  if (!course) {
+    return next(new AppError("Course with given id does not exist.", 404));
+  }
+
+  // Remove course
+  await course.remove();
+
+  // Send the message as response
+  res.status(200).json({
+    success: true,
+    message: "Course Deleted successfully",
+  });
+});
+
 export {
   getAllCourses,
   getLecturesByCourseId,
   createCourse,
-  updateCourse,
-  removeCourse,
+  updateCourseById,
   addLecturesToCourseById,
   removeLectureFromCourse,
 };

@@ -2,11 +2,11 @@ import { Router } from "express";
 import {
   addLecturesToCourseById,
   createCourse,
+  deleteCourseById,
   getAllCourses,
   getLecturesByCourseId,
-  removeCourse,
   removeLectureFromCourse,
-  updateCourse,
+  updateCourseById,
 } from "../controllers/course.controller.js";
 import {
   authorizedRoles,
@@ -40,6 +40,7 @@ router
     upload.single("lecture"),
     addLecturesToCourseById
   )
-  .put(isLoggedIn, authorizedRoles("ADMIN"), updateCourse);
+  .delete(isLoggedIn, authorizedRoles("ADMIN"), deleteCourseById)
+  .put(isLoggedIn, authorizedRoles("ADMIN"), updateCourseById);
 
 export default router;
